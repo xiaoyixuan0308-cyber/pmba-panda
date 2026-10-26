@@ -1,0 +1,56 @@
+@startuml 02-activity-request
+' Process 1: loan request and approval — BR-01..BR-04, BR-06, BR-09, BR-12
+|Borrower|
+start
+:Submit loan request;
+note right: BR-01, BR-06 (DT-02)
+|Loan System|
+:Notify Equipment Manager;
+fork
+  :Check borrower for overdue loans;
+  note right: BR-12
+fork again
+  :Check equipment availability;
+  note right: BR-03
+end fork
+|Equipment Manager|
+:Review check results;
+if (Equipment available?) then ([yes])
+  if (Borrower has overdue loans?) then ([yes])
+    :Reject request with reason;
+    note right: BR-04, BR-12
+    |Borrower|
+    :Receive rejection notice;
+    stop
+  else ([no])
+    |Equipment Manager|
+    :Approve as Equipment Manager;
+    if (Department Head approval required? (DT-01)) then ([yes])
+      |Department Head|
+      :Review request;
+      note right: BR-02, reminded after 2 working days (BR-09)
+      if (Approved by Department Head?) then ([yes])
+        :Approve as Department Head;
+      else ([no])
+        :Reject request with reason;
+        |Borrower|
+        :Receive rejection notice;
+        stop
+      endif
+    else ([no])
+    endif
+    |Loan System|
+    :Mark loan approved;
+    |Borrower|
+    :Receive approval notice;
+    stop
+  endif
+else ([no])
+  |Equipment Manager|
+  :Add request to waiting list;
+  note right: BR-03 — returns to review when equipment is released
+  |Borrower|
+  :Receive waiting-list notice;
+  end
+endif
+@enduml

@@ -1,0 +1,70 @@
+@startuml 01-usecase-loan
+' Equipment loan system — actors and use cases — BR-01..BR-13
+left to right direction
+skinparam packageStyle rectangle
+
+actor Borrower
+actor Clerk
+actor "Equipment Manager" as Manager
+actor "Department Head" as DeptHead
+actor Staff
+actor "Asset Registry" as Registry <<system>>
+
+Clerk --|> Staff
+Manager --|> Staff
+
+rectangle "Equipment Loan System" {
+  usecase "Submit Loan Request" as UC1
+  usecase "Withdraw Request" as UC2
+  usecase "View My Loans" as UC3
+  usecase "Review Request" as UC4
+  usecase "Approve Valuable or Off-campus Loan" as UC5
+  usecase "Cancel Approved Loan" as UC6
+  usecase "Check Out Equipment" as UC7
+  usecase "Return Equipment" as UC8
+  usecase "Run Due-date Check" as UC9
+  usecase "View Loan Statistics" as UC10
+  usecase "Record Audit Entry" as UC11
+  usecase "Verify Asset Tags" as UC12
+  usecase "Check Borrower and Stock" as UC13
+  usecase "Add to Waiting List" as UC14
+  usecase "Charge Late Fee" as UC15
+  usecase "Validate Loan Period" as UC16
+  usecase "Notify Waiting Request" as UC17
+  usecase "Remind Pending Approver" as UC18
+}
+
+Borrower --> UC1
+Borrower --> UC2
+Borrower --> UC3
+Manager --> UC4
+Manager --> UC6
+Manager --> UC9
+DeptHead --> UC5
+DeptHead --> UC10
+Clerk --> UC7
+Staff --> UC8
+UC12 --> Registry
+
+' BR-06 loan period check is part of every submission
+UC1 ..> UC16 : <<include>>
+' BR-03, BR-12 checks run for every review
+UC4 ..> UC13 : <<include>>
+' BR-11
+UC7 ..> UC12 : <<include>>
+' audit trail for key operations
+UC4 ..> UC11 : <<include>>
+UC5 ..> UC11 : <<include>>
+UC7 ..> UC11 : <<include>>
+UC8 ..> UC11 : <<include>>
+' BR-03
+UC14 ..> UC4 : <<extend>>\n[equipment not available]
+' BR-10
+UC15 ..> UC8 : <<extend>>\n[loan overdue]
+' BR-03
+UC17 ..> UC8 : <<extend>>\n[returned equipment is awaited]
+' BR-09
+UC18 ..> UC4 : <<extend>>\n[no decision after 2 working days]
+UC18 ..> UC5 : <<extend>>\n[no decision after 2 working days]
+' BR-13 statistics for the department head
+@enduml

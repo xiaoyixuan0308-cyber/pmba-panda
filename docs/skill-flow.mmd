@@ -1,0 +1,70 @@
+flowchart TD
+  IN(["<b>输入</b>：业务描述 + 现有材料<br/>台账、表单、制度、聊天记录（先脱敏）"])
+
+  subgraph S0["阶段 0　启动"]
+    direction LR
+    S0a["判断是否适用"] --> S0b["业务量级、现有系统<br/>项目约束"] --> S0c["规模档位"]
+  end
+
+  subgraph S1["阶段 1　需求挖掘"]
+    direction LR
+    S1a["1a 材料考古<br/>逐行核对"] --> S1k1["☑ 矛盾<br/>逐条裁决"] --> S1b["1b 现状流程<br/>与痛点"] --> S1c["1c 真实案例<br/>33 项例外"] --> S1k2["☑ 确认<br/>黄金案例"] --> S1d["1d 规则<br/>决策表、术语表"] --> S1e["1e 角色视角表<br/>CRUD 矩阵"]
+  end
+
+  subgraph S2["阶段 2　用户故事"]
+    direction LR
+    S2a["用户故事<br/>验收标准"] --> S2b["需求质量清单"]
+  end
+
+  subgraph S3["阶段 3　UML 建模"]
+    direction LR
+    S3a["☑ 用例图"] --> S3b["☑ 状态机图"] --> S3c["☑ 活动图"] --> S3d["类图<br/>序列图"] --> S3e["一致性检查<br/>自动 + 人工"]
+  end
+
+  subgraph S4["阶段 4　构建计划"]
+    direction LR
+    S4a["模型 → 代码映射"] --> S4b["追溯表"] --> S4c["开工前就绪检查"]
+  end
+
+  subgraph S5["阶段 5　分阶段构建"]
+    direction LR
+    S5a["5a 数据<br/>种子数据校验"] --> G5a{{"关卡"}} --> S5b["5b 规则和权限<br/>按验收标准测试<br/>反向检查"] --> G5b{{"关卡"}} --> S5c["5c 界面<br/>带断言的角色走查"]
+  end
+
+  subgraph S6["阶段 6　验证与交付"]
+    direction LR
+    S6a["黄金案例<br/>端到端测试"] --> S6b["演示脚本<br/>自动排练"] --> S6c["追溯检查<br/>缺口为 0"] --> S6d["交接说明<br/>运行说明"]
+  end
+
+  OUT(["<b>交付</b>：规格 + 5 种 UML + 可运行的原型 + 测试 + 演示脚本 + 开发交接说明"])
+
+  IN --> S0 --> G0{{"关卡"}} --> S1 --> G1{{"关卡"}} --> S2 --> G2{{"关卡"}} --> S3 --> G3{{"关卡"}} --> S4 --> G4{{"关卡"}} --> S5 --> G5c{{"关卡"}} --> S6 --> G6{{"验收"}} --> OUT
+
+  subgraph ALL["贯穿全程"]
+    direction LR
+    CH1["需求变更，或构建中<br/>发现规格缺陷"] --> CH2["编写变更提案<br/>列出受影响的<br/>规格、模型和代码"] --> CH3["确认后回到受影响的阶段<br/>先更新规格，再修改代码"]
+    CH3 ~~~ RV["评审摘要<br/>每个关卡一页<br/>面向业务方"] ~~~ PR[("progress.md<br/>记录进度<br/>支持跨对话续做")]
+  end
+  OUT ~~~ ALL
+
+  subgraph LEG["图例"]
+    direction LR
+    L1{{"关卡：阶段评审，确认通过后进入下一阶段"}}
+    L2["☑ 轻检查点：关键产出完成后即时确认"]
+    L3["验证：自动检查与测试"]
+    L1 ~~~ L2 ~~~ L3
+  end
+  ALL ~~~ LEG
+
+  classDef gate fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,font-weight:bold
+  classDef check fill:#fef3c7,stroke:#b45309,color:#78350f
+  classDef verify fill:#dcfce7,stroke:#15803d,color:#14532d
+  classDef io fill:#f1f5f9,stroke:#334155,color:#0f172a
+  classDef change fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d
+  class G0,G1,G2,G3,G4,G5a,G5b,G5c,G6,L1 gate
+  class S1k1,S1k2,S3a,S3b,S3c,L2 check
+  class S2b,S3e,S4c,S5a,S5b,S5c,S6a,S6b,S6c,L3 verify
+  class IN,OUT,PR,RV io
+  class CH1,CH2,CH3 change
+  style ALL fill:#fff,stroke:#94a3b8,stroke-dasharray:5 3
+  style LEG fill:#fff,stroke:#cbd5e1

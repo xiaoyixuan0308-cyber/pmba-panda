@@ -1,0 +1,70 @@
+flowchart TD
+  IN(["<b>Input</b>: business description + existing materials<br/>ledgers, forms, policies, chat logs (de-identified first)"])
+
+  subgraph S0["Stage 0 · Kick-off"]
+    direction LR
+    S0a["Check fit"] --> S0b["Volumes, existing systems<br/>project constraints"] --> S0c["Scale tier"]
+  end
+
+  subgraph S1["Stage 1 · Requirements discovery"]
+    direction LR
+    S1a["1a Material mining<br/>row-by-row audit"] --> S1k1["☑ Resolve<br/>contradictions"] --> S1b["1b As-is process<br/>and pain points"] --> S1c["1c Real cases<br/>33 exceptions"] --> S1k2["☑ Confirm<br/>golden cases"] --> S1d["1d Rules<br/>decision tables, glossary"] --> S1e["1e Role views<br/>CRUD matrix"]
+  end
+
+  subgraph S2["Stage 2 · User stories"]
+    direction LR
+    S2a["User stories<br/>acceptance criteria"] --> S2b["Requirements<br/>quality checklist"]
+  end
+
+  subgraph S3["Stage 3 · UML modelling"]
+    direction LR
+    S3a["☑ Use case"] --> S3b["☑ State machine"] --> S3c["☑ Activity"] --> S3d["Class<br/>sequence"] --> S3e["Consistency check<br/>automatic + manual"]
+  end
+
+  subgraph S4["Stage 4 · Build plan"]
+    direction LR
+    S4a["Model → code mapping"] --> S4b["Traceability matrix"] --> S4c["Readiness check"]
+  end
+
+  subgraph S5["Stage 5 · Incremental build"]
+    direction LR
+    S5a["5a Data<br/>seed-data validation"] --> G5a{{"Gate"}} --> S5b["5b Rules and permissions<br/>acceptance tests<br/>mutation check"] --> G5b{{"Gate"}} --> S5c["5c UI<br/>role walkthrough with assertions"]
+  end
+
+  subgraph S6["Stage 6 · Verification and handover"]
+    direction LR
+    S6a["Golden cases<br/>end-to-end tests"] --> S6b["Demo script<br/>automated rehearsal"] --> S6c["Traceability check<br/>zero gaps"] --> S6d["Handover notes<br/>run guide"]
+  end
+
+  OUT(["<b>Deliverables</b>: specification + 5 UML models + working prototype + tests + demo script + developer handover"])
+
+  IN --> S0 --> G0{{"Gate"}} --> S1 --> G1{{"Gate"}} --> S2 --> G2{{"Gate"}} --> S3 --> G3{{"Gate"}} --> S4 --> G4{{"Gate"}} --> S5 --> G5c{{"Gate"}} --> S6 --> G6{{"Acceptance"}} --> OUT
+
+  subgraph ALL["Throughout"]
+    direction LR
+    CH1["Requirements change, or<br/>a spec defect found during build"] --> CH2["Write a change proposal<br/>listing affected<br/>specs, models and code"] --> CH3["Return to the affected stage<br/>update the spec first, then the code"]
+    CH3 ~~~ RV["Review summary<br/>one page per gate<br/>for business readers"] ~~~ PR[("progress.md<br/>tracks progress<br/>across conversations")]
+  end
+  OUT ~~~ ALL
+
+  subgraph LEG["Legend"]
+    direction LR
+    L1{{"Gate: stage review, proceed only after sign-off"}}
+    L2["☑ Checkpoint: confirm key outputs as soon as they are ready"]
+    L3["Verification: automated checks and tests"]
+    L1 ~~~ L2 ~~~ L3
+  end
+  ALL ~~~ LEG
+
+  classDef gate fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,font-weight:bold
+  classDef check fill:#fef3c7,stroke:#b45309,color:#78350f
+  classDef verify fill:#dcfce7,stroke:#15803d,color:#14532d
+  classDef io fill:#f1f5f9,stroke:#334155,color:#0f172a
+  classDef change fill:#fee2e2,stroke:#b91c1c,color:#7f1d1d
+  class G0,G1,G2,G3,G4,G5a,G5b,G5c,G6,L1 gate
+  class S1k1,S1k2,S3a,S3b,S3c,L2 check
+  class S2b,S3e,S4c,S5a,S5b,S5c,S6a,S6b,S6c,L3 verify
+  class IN,OUT,PR,RV io
+  class CH1,CH2,CH3 change
+  style ALL fill:#fff,stroke:#94a3b8,stroke-dasharray:5 3
+  style LEG fill:#fff,stroke:#cbd5e1

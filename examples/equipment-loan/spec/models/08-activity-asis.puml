@@ -1,0 +1,32 @@
+@startuml 08-activity-asis
+' Current (as-is) process with pain points P1..P7 — see 01-as-is.md
+|Borrower|
+start
+:Fill in paper application form;
+|Clerk|
+:Look up register for stock and overdue loans;
+note right: P1 asset number written twice\nP6 "register first" when out of stock
+|Equipment Manager|
+:Sign application form;
+if (Valuable or off-campus?) then ([yes])
+  |Borrower|
+  :Carry form to Department Head office;
+  note right: P3 often 2-3 days
+  |Department Head|
+  :Sign application form;
+else ([no])
+endif
+|Borrower|
+:Sign loan agreement;
+|Clerk|
+:Verify asset tag in Asset Registry;
+:Write one register row per item;
+note right: P2 multi-item loans split into rows
+|Equipment Manager|
+:Scan register for overdue loans every Friday;
+note right: P4 found up to a week late
+|Clerk|
+:Record return and work out fine by hand;
+note right: P5 fines inconsistent, one waived
+stop
+@enduml

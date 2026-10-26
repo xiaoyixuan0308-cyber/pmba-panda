@@ -1,0 +1,150 @@
+@startuml 07-class-domain
+' Domain classes — BR-01, BR-02, BR-05, BR-10, BR-13
+hide circle
+skinparam classAttributeIconSize 0
+
+abstract class Person {
+  -id: Integer
+  +name: String
+  +email: String
+  -phone: String
+  -passwordHash: String
+  +maskedPhone(): String
+  +updateContact(email: String, phone: String): void
+}
+
+class Borrower {
+  +borrowerNo: String
+  +borrowerType: BorrowerType
+  +department: String
+  +hasOverdueLoans(): Boolean
+  +maxLoanDays(teaching: Boolean, valuable: Boolean): Integer
+}
+
+class StaffMember {
+  +staffNo: String
+  +staffRole: StaffRole
+  +canApprove(loan: Loan): Boolean
+}
+
+class Loan {
+  -id: Integer
+  +loanNo: String
+  +status: LoanStatus
+  +purpose: String
+  +teaching: Boolean
+  +offCampus: Boolean
+  +startDate: Date
+  +dueDate: Date
+  -submittedAt: DateTime
+  -assetTagsVerifiedAt: DateTime
+  -checkOutDate: DateTime
+  -returnDate: DateTime
+  -closingReason: String
+  +/isOverdue: Boolean
+  +/hasValuableItem: Boolean
+  +submit(form: LoanForm): void
+  +requiredApprovals(): StaffRole[*]
+  +addApproval(role: StaffRole): void
+  +withdraw(): void
+  +cancel(reason: String): void
+  +checkOut(): void
+  +recordReturn(returnDate: Date): void
+  +calculateLateFee(returnDate: Date): Integer
+}
+
+class Equipment {
+  -id: Integer
+  +assetTag: String
+  +model: String
+  +category: String
+  +unitPrice: Integer
+  +/valuable: Boolean
+  +isAvailable(period: DateRange): Boolean
+  +timesLoanedIn(month: Date): Integer
+}
+
+class Approval {
+  -id: Integer
+  +approverRole: StaffRole
+  +decision: ApprovalDecision
+  +comment: String
+  +decidedAt: DateTime
+}
+
+class Agreement {
+  -id: Integer
+  +termsVersion: String
+  +signedAt: DateTime
+  +sign(): void
+}
+
+class LateFee {
+  -id: Integer
+  +overdueDays: Integer
+  +amount: Integer
+  +paidAt: DateTime
+  +markPaid(): void
+}
+
+class AuditEntry {
+  -id: Integer
+  +actorId: Integer
+  +action: String
+  +objectType: String
+  +objectId: Integer
+  +before: String
+  +after: String
+  +at: DateTime
+}
+
+class Notification {
+  -id: Integer
+  +message: String
+  +createdAt: DateTime
+  +readAt: DateTime
+  +markRead(): void
+}
+
+enum LoanStatus {
+  Requested
+  Waitlisted
+  Approved
+  Rejected
+  Withdrawn
+  OnLoan
+  Overdue
+  Returned
+}
+
+enum BorrowerType {
+  Student
+  Teacher
+}
+
+enum StaffRole {
+  Clerk
+  Manager
+  DeptHead
+}
+
+enum ApprovalDecision {
+  Approve
+  Reject
+}
+
+Person <|-- Borrower
+Person <|-- StaffMember
+Borrower "1" -- "0..*" Loan : requests >
+Loan "0..*" o-- "1..*" Equipment : includes >
+Loan "1" *-- "0..*" Approval
+Loan "1" *-- "0..1" Agreement
+Loan "1" *-- "0..1" LateFee
+StaffMember "1" -- "0..*" Approval : gives >
+Person "1" -- "0..*" Notification : receives >
+Notification "0..*" -- "0..1" Loan : about >
+Loan ..> LoanStatus
+Borrower ..> BorrowerType
+StaffMember ..> StaffRole
+Approval ..> ApprovalDecision
+@enduml

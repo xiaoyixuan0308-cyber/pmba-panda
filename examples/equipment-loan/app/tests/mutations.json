@@ -1,0 +1,129 @@
+[
+ {
+  "name": "DT-01 threshold 5000 counted as valuable",
+  "file": "src/rules/decision-tables.ts",
+  "find": "unitPriceCents > VALUABLE_THRESHOLD_CENTS",
+  "replace": "unitPriceCents >= VALUABLE_THRESHOLD_CENTS"
+ },
+ {
+  "name": "late fee cap removed",
+  "file": "src/domain/loan/transition.ts",
+  "find": "amount: Math.min(overdueDays * perDay, cap)",
+  "replace": "amount: overdueDays * perDay"
+ },
+ {
+  "name": "overdue on the due date itself",
+  "file": "src/domain/loan/guards.ts",
+  "find": "ctx.today > loan.dueDate",
+  "replace": "ctx.today >= loan.dueDate"
+ },
+ {
+  "name": "BR-12 guard disabled",
+  "file": "src/domain/loan/guards.ts",
+  "find": "return overdue.length === 0\n      ? null",
+  "replace": "return true\n      ? null"
+ },
+ {
+  "name": "Overdue entry forgets the Manager",
+  "file": "src/domain/loan/transition.ts",
+  "find": "for (const id of staffWithRole(tx, \"Manager\")) notify(tx, ctx, id, `${OVERDUE_ALERT_PREFIX}",
+  "replace": "for (const id of [] as number[]) notify(tx, ctx, id, `${OVERDUE_ALERT_PREFIX}"
+ },
+ {
+  "name": "blank reason accepted",
+  "file": "src/domain/loan/guards.ts",
+  "find": "input.reason && input.reason.trim().length > 0",
+  "replace": "true"
+ },
+ {
+  "name": "DT-02 R2 student valuable 7 → 14",
+  "file": "src/rules/decision-tables.ts",
+  "find": "teaching: \"-\", valuable: true, maxDays: 7",
+  "replace": "teaching: \"-\", valuable: true, maxDays: 14"
+ },
+ {
+  "name": "borrower can act on others' loans",
+  "file": "src/domain/loan/transition.ts",
+  "find": "if (t.own && loan.borrowerId !== ctx.actor.id)",
+  "replace": "if (false)"
+ },
+ {
+  "name": "waiting list never released",
+  "file": "src/domain/loan/transition.ts",
+  "find": "if (t.effects.includes(\"releaseEquipment\")) releaseWaiting(tx, ctx);",
+  "replace": ""
+ },
+ {
+  "name": "weekends counted as working days",
+  "file": "src/lib/dates.ts",
+  "find": "if (wd !== 0 && wd !== 6) n++;",
+  "replace": "n++;"
+ },
+ {
+  "name": "Approved loans do not reserve equipment",
+  "file": "src/domain/loan/availability.ts",
+  "find": "inArray(loans.status, [\"Approved\", \"OnLoan\", \"Overdue\"])",
+  "replace": "inArray(loans.status, [\"OnLoan\", \"Overdue\"])"
+ },
+ {
+  "name": "DeptHead sees full phone numbers",
+  "file": "src/auth/permissions.ts",
+  "find": "\"phone.readFull\": [\"Clerk\", \"Manager\"]",
+  "replace": "\"phone.readFull\": [\"Clerk\", \"Manager\", \"DeptHead\"]"
+ },
+ {
+  "name": "lockout after 6 failures",
+  "file": "src/auth/login.ts",
+  "find": "MAX_FAILED_LOGINS = 5",
+  "replace": "MAX_FAILED_LOGINS = 6"
+ },
+ {
+  "name": "registry down treated as passed",
+  "file": "src/domain/loan/service.ts",
+  "find": "if (e instanceof RegistryUnavailableError) throw new DomainError(\"REGISTRY_UNAVAILABLE\", REGISTRY_DOWN_MESSAGE, \"BR-11\");\n    throw e;",
+  "replace": "void e;"
+ },
+ {
+  "name": "DeptHead may approve before Manager",
+  "file": "src/domain/loan/service.ts",
+  "find": "if (next !== role) {",
+  "replace": "if (next !== role && role !== \"DeptHead\") {"
+ },
+ {
+  "name": "reminders sent twice a day",
+  "file": "src/domain/loan/daily.ts",
+  "find": "if (alreadySentToday(tx, ctx, l.id, id, APPROVAL_REMINDER_PREFIX)) continue;",
+  "replace": ""
+ },
+ {
+  "name": "Clerk may cancel",
+  "file": "src/domain/loan/transitions.ts",
+  "find": "trigger: \"cancel\", roles: [\"Manager\"]",
+  "replace": "trigger: \"cancel\", roles: [\"Manager\", \"Clerk\"]"
+ },
+ {
+  "name": "returned-on-due-date counted overdue in stats",
+  "file": "src/domain/stats.ts",
+  "find": "l.returnDate > l.dueDate",
+  "replace": "l.returnDate >= l.dueDate"
+ },
+ {
+  "name": "a database delete slips in (static check, C-02)",
+  "file": "src/domain/admin.ts",
+  "append": "export const _planted = (d: import(\"@/db/open\").Db) => d.delete(require(\"@/db/schema\").loans);"
+ },
+ {
+  "name": "UI: fee checkbox wired to the wrong field (GC-01)",
+  "file": "src/app/(app)/loans/[id]/page.tsx",
+  "find": "name=\"feePaid\"",
+  "replace": "name=\"paid\"",
+  "cmd": "npx next build && npx vitest run -c vitest.e2e.config.ts tests/e2e/golden-cases/gc-01.e2e.test.ts"
+ },
+ {
+  "name": "UI: request form loses typed purpose after a failed submit (S19)",
+  "file": "src/app/(app)/loans/new/request-form.tsx",
+  "find": "value={purpose} onChange={(e) => setPurpose(e.target.value)} ",
+  "replace": "",
+  "cmd": "npx next build && npx vitest run -c vitest.e2e.config.ts tests/e2e/request-form.e2e.test.ts"
+ }
+]

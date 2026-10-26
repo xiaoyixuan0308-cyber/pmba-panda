@@ -1,0 +1,56 @@
+@startuml 03-activity-checkout-return
+' Process 2: check out and return — BR-05, BR-07, BR-10, BR-11
+|Borrower|
+start
+:Arrive to collect equipment;
+|Clerk|
+:Open approved loan;
+|Borrower|
+:Read loan agreement;
+if (Agreement signed?) then ([yes])
+  |Clerk|
+  :Verify every asset tag with Asset Registry;
+  note right: BR-11
+  if (All asset tags valid?) then ([yes])
+    :Check out equipment;
+    note right: BR-05, BR-11
+  else ([no])
+    :Report asset problem to Equipment Manager;
+    |Equipment Manager|
+    :Resolve asset record;
+    end
+  endif
+else ([no])
+  |Clerk|
+  :Keep loan approved without check-out;
+  note right: BR-05
+  end
+endif
+|Borrower|
+:Use equipment;
+|Loan System|
+:Run daily due-date check;
+if (Due date passed and not returned?) then ([yes])
+  :Mark loan overdue;
+  note right: BR-07
+  :Notify Borrower and Equipment Manager;
+else ([no])
+endif
+|Borrower|
+:Return equipment;
+|Clerk|
+:Inspect equipment and record return;
+note right: Clerk or Equipment Manager (Staff)
+if (Loan overdue?) then ([yes])
+  |Loan System|
+  :Calculate late fee;
+  note right: BR-10 — 10 per day, cap 200
+  |Borrower|
+  :Pay late fee;
+  |Clerk|
+  :Record payment and close loan;
+else ([no])
+  :Close loan;
+endif
+stop
+@enduml

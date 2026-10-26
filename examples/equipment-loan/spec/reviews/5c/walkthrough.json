@@ -1,0 +1,28 @@
+{
+ "log": [
+  "student home: http://localhost:3100/me",
+  "empty submit errors: ['请至少选择 1 件设备', '请填写用途', '请选择使用地点（校内或校外）', '请填写借用日期', '请填写预计归还日期']",
+  "due date hint: 请填写预计归还日期",
+  "too long (22 days) message: ['这次最多可以借 14 天（DT-02 R1），你填写的是 22 天。', '']",
+  "after submit: http://localhost:3100/loans/4792?created=1",
+  "created: 借用单 JY-5785",
+  "manager home: http://localhost:3100/review",
+  "approve confirmation shown: True",
+  "daily check: ['2026-10-08 到期检查完成：新逾期 0 张；审批提醒 0 条；到期前提醒 2 条。']",
+  "sign without ticking: ['请先阅读并勾选同意借用协议。']",
+  "signed: ['协议已签署。请在 2026-10-08 到设备室领取设备。']",
+  "clerk home: http://localhost:3100/counter",
+  "check-out: status now 借出中",
+  "return without fee tick: ['请先收取逾期费 200 元，再办理归还。', '借用单 JY-0905']",
+  "depthead home: http://localhost:3100/approvals",
+  "depthead sees phone: 100****0012",
+  "depthead /settings -> http://localhost:3100/approvals",
+  "S-014 opening another borrower's loan: HTTP 404"
+ ],
+ "problems": [],
+ "axe": {
+  "request-form": [],
+  "review-page": [],
+  "counter-page": []
+ }
+}

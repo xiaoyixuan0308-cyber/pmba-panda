@@ -1,0 +1,75 @@
+@startuml 05-sequence-checkout-return
+' Realises 03-activity-checkout-return — BR-05, BR-07, BR-10, BR-11; transitions T2, T7..T10
+actor Clerk
+participant "DeskPage" as UI
+participant "LoanService" as Service
+participant "Loan" as Loan
+participant "Asset Registry" as Registry <<system>>
+
+== Check out ==
+Clerk -> UI : open approved loan
+UI -> Service : checkOut(loanId)
+activate Service
+Service -> Loan : findById(loanId)
+Loan --> Service : loan
+' BR-05
+Service -> Service : verifyAgreement(loan)
+alt agreement not signed
+  Service --> UI : error BR-05
+  UI --> Clerk : show "Sign the agreement first"
+else agreement signed
+  ' BR-11
+  loop each equipment item
+    Service -> Registry : verifyAssetTag(tag)
+    Registry --> Service : result
+  end
+  alt registry unavailable
+    Service --> UI : error BR-11
+    UI --> Clerk : show "Cannot verify asset tags now"
+  else any tag invalid
+    Service --> UI : invalid tag
+    UI --> Clerk : show which item failed
+  else all tags valid
+    ' T7
+    Service -> Loan : transition(checkOut)
+    Loan --> Service : status = OnLoan
+    Service --> UI : checked out
+  end
+end
+deactivate Service
+
+== Daily due-date check ==
+' BR-07
+Service -> Service : runDueDateCheck()
+activate Service
+loop each loan past its due date
+  ' T8
+  Service -> Loan : transition(expire)
+  Loan --> Service : status = Overdue
+end
+deactivate Service
+
+== Return ==
+Clerk -> UI : record return
+UI -> Service : recordReturn(loanId)
+activate Service
+Service -> Loan : findById(loanId)
+Loan --> Service : loan
+alt loan overdue
+  ' BR-10
+  Service -> Loan : calculateLateFee(returnDate)
+  Loan --> Service : fee
+  ' T10
+  Service -> Loan : transition(return)
+else loan on time
+  ' T9
+  Service -> Loan : transition(return)
+end
+Loan --> Service : status = Returned
+opt a waiting request needs this equipment
+  ' T2, BR-03
+  Service -> Loan : transition(equipmentReleased)
+end
+Service --> UI : returned
+deactivate Service
+@enduml

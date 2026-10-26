@@ -1,0 +1,86 @@
+@startuml 04-sequence-request
+' Realises 02-activity-request — BR-01..BR-04, BR-06, BR-12; transitions T1, T3, T4
+actor Borrower
+actor "Equipment Manager" as Manager
+actor "Department Head" as DeptHead
+participant "LoanPage" as UI
+participant "LoanService" as Service
+participant "Loan" as Loan
+participant "Borrower" as BorrowerRecord
+participant "Equipment" as Equipment
+
+== Submit ==
+Borrower -> UI : submit request form
+UI -> Service : submitRequest(form)
+activate Service
+' BR-01, BR-06 (DT-02)
+Service -> Service : validateRequest(form)
+alt form invalid
+  Service --> UI : field errors
+  UI --> Borrower : show what is missing
+else form valid
+  Service -> Loan : submit(form)
+  Loan --> Service : loan (Requested)
+  Service --> UI : loan number
+  UI --> Borrower : show loan number
+end
+deactivate Service
+
+== Review ==
+Manager -> UI : open request
+UI -> Service : review(loanId)
+activate Service
+par
+  ' BR-12
+  Service -> BorrowerRecord : hasOverdueLoans()
+  BorrowerRecord --> Service : result
+else
+  ' BR-03
+  Service -> Equipment : isAvailable(period)
+  Equipment --> Service : result
+end
+alt equipment not available
+  ' T1
+  Service -> Loan : transition(review)
+  Loan --> Service : status = Waitlisted
+  Service --> UI : added to waiting list
+else borrower has overdue loans
+  Service --> UI : approval blocked (BR-12)
+  Manager -> UI : reject with reason
+  UI -> Service : reject(loanId, reason)
+  ' T4, BR-04
+  Service -> Loan : transition(reject)
+  Loan --> Service : status = Rejected
+else checks passed
+  Manager -> UI : approve
+  UI -> Service : approve(loanId)
+  ' BR-02, DT-01
+  Service -> Loan : requiredApprovals()
+  Loan --> Service : approvers
+  Service -> Loan : addApproval(Manager)
+  alt no Department Head approval required
+    ' T3 [allApprovalsGiven && equipmentAvailable && noOverdueLoans]
+    Service -> Loan : transition(approve)
+    Loan --> Service : status = Approved
+    Service --> UI : approved
+  else Department Head approves
+    Service --> DeptHead : notify pending approval
+    DeptHead -> UI : approve
+    UI -> Service : approve(loanId)
+    Service -> Loan : addApproval(DeptHead)
+    ' T3
+    Service -> Loan : transition(approve)
+    Loan --> Service : status = Approved
+    Service --> UI : approved
+  else Department Head rejects
+    Service --> DeptHead : notify pending approval
+    DeptHead -> UI : reject with reason
+    UI -> Service : reject(loanId, reason)
+    ' T4, BR-04
+    Service -> Loan : transition(reject)
+    Loan --> Service : status = Rejected
+    Service --> UI : rejected
+  end
+end
+deactivate Service
+@enduml

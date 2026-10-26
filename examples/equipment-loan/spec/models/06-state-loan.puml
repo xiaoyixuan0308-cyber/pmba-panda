@@ -1,0 +1,44 @@
+@startuml 06-state-loan
+' Loan lifecycle — BR-02, BR-03, BR-04, BR-05, BR-07, BR-08, BR-09, BR-10, BR-11, BR-12
+[*] --> Requested
+
+' BR-03
+Requested --> Waitlisted : T1 review [not equipmentAvailable]
+Waitlisted --> Requested : T2 equipmentReleased
+' BR-02, BR-12, BR-03 (E18: stock re-checked on approval)
+Requested --> Approved : T3 approve [allApprovalsGiven && equipmentAvailable && noOverdueLoans] / notifyBorrower
+' BR-04
+Requested --> Rejected : T4 reject / recordReason
+' BR-08
+Requested --> Withdrawn : T5 withdraw / releaseEquipment
+Waitlisted --> Withdrawn : T6 withdraw
+' BR-08, change 001 (closingReason)
+Approved --> Withdrawn : T11 cancel / recordReason
+' BR-05, BR-11
+Approved --> OnLoan : T7 checkOut [agreementSigned && assetTagsVerified] / recordCheckOutDate
+' BR-07
+OnLoan --> Overdue : T8 expire [after dueDate]
+' FUS7 AC1
+OnLoan --> Returned : T9 return / recordReturnDate
+' BR-10
+Overdue --> Returned : T10 return / chargeLateFee
+
+Rejected --> [*]
+Withdrawn --> [*]
+Returned --> [*]
+
+' FUS1 AC4, FUS8 AC1
+Requested : entry / notifyApprovers
+' BR-09
+Requested : do / remindPendingApprovers
+' BR-02: an approval that leaves others outstanding keeps the loan in Requested
+Requested : approve [not allApprovalsGiven] / addApproval
+' BR-03, FUS3 AC2
+Waitlisted : entry / notifyBorrower
+' [用户] 01-rules.md 说明: one day before dueDate (confirmed in 5b)
+OnLoan : do / remindBeforeDue
+' BR-07
+Overdue : entry / notifyBorrowerAndManager
+' [用户] 01-rules.md 说明: overdue alerts are marked handled once the loan is returned (confirmed 2026-10-26)
+Overdue : exit / closeOverdueAlert
+@enduml
